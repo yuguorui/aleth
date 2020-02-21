@@ -1,0 +1,25 @@
+version: '3'
+services:
+  node1:
+    build:
+      context: ../
+      dockerfile: vmie/Dockerfile
+    image: aleth
+    command: eth --config config.json \
+      -v 9 -m on -a 000f971b010db1038d07139fe3b1075b02ceade7 \
+      --no-discovery --pin --unsafe-transactions -j
+    ports:
+      - 8545:8545
+    expose:
+      - 8545
+    volumes:
+      - ${PWD}/keys:/root/.web3/keys
+      - ${PWD}:/mnt
+    working_dir: /mnt
+
+  lite-explorer:
+    image: alethio/ethereum-lite-explorer
+    environment:
+      - APP_NODE_URL=http://node1:8545
+    ports:
+      - 8888:80
