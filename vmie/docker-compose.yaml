@@ -5,9 +5,7 @@ services:
       context: ../
       dockerfile: vmie/Dockerfile
     image: aleth
-    command: eth --config config.json \
-      -v 9 -m on -a 000f971b010db1038d07139fe3b1075b02ceade7 \
-      --no-discovery --pin --unsafe-transactions -j
+    command: eth --config config.json -v 5 -m on -a 000f971b010db1038d07139fe3b1075b02ceade7 --no-discovery --pin --unsafe-transactions -j
     ports:
       - 8545:8545
     expose:

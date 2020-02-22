@@ -24,6 +24,8 @@ RUN cpp-ethereum/scripts/install_cmake.sh --prefix /tmp && \
     rm /cpp-ethereum -rf && \
     rm /tmp/* -rf
 
+RUN eth -D 0
+
 # RUN mkdir -p $HOME/.web3/keys
 
 # ENTRYPOINT ["/usr/local/bin/eth"]
