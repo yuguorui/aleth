@@ -28,12 +28,14 @@ async function compileAndDeploy(filename, web3, privateKey) {
     };
     const source_address = web3.eth.accounts.privateKeyToAccount(privateKey).address;
     const output = JSON.parse(solc.compile(JSON.stringify(input)));
+
+    const receipts = [];
     for (var contractName in output.contracts[filename]) {
         const contract = output.contracts[filename][contractName];
         const abi = contract.abi;
         const bytecode = contract.evm.bytecode.object;
-        const contract_interface = new web3.eth.Contract(abi);
 
+        // 因为服务器缺乏一些特定的RPC调用接口，所以在本地签名后再发送交易。
         // Construct the raw transaction
         const gasPrice = await web3.eth.getGasPrice();
         const gasPriceHex = web3.utils.toHex(gasPrice);
@@ -53,7 +55,6 @@ async function compileAndDeploy(filename, web3, privateKey) {
         console.log(rawTx);
 
         // Sign and serialize the transaction
-        console.log(Common);
         const tx = new Tx(rawTx, {
             common: Common.forCustomChain(
                 'mainnet',
@@ -70,23 +71,9 @@ async function compileAndDeploy(filename, web3, privateKey) {
 
         // Send the transaction
         const receipt = await web3.eth.sendSignedTransaction(serializedTx.toString('hex'))
-        console.log(receipt);
-
-        // const deploy_obj = await contract_interface.deploy({
-        //     data: bytecode,
-        //     arguments: []
-        // });
-        // const response = await deploy_obj.send({
-        //     from: web3.eth.accounts.wallet[account_index].address,
-        //     gas: await deploy_obj.estimateGas()
-        // });
-
-        // web3.eth.accounts.signTransaction(rawTx, privateKey).then(signed => {
-        //     web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
-        // });
-
-        // console.log(response) // instance with the new contract address
+        receipts.push({ 'receipt': receipt, 'abi': abi });
     }
+    return receipts;
 }
 
 async function main() {
@@ -104,7 +91,7 @@ async function main() {
         await web3.eth.accounts.wallet.add(PRIVATE_KEY2);
 
         // deploy contract with 0th account.
-        await compileAndDeploy('./deployer.sol', web3, PRIVATE_KEY2);
+        console.log(await compileAndDeploy('./deployer.sol', web3, PRIVATE_KEY2));
     } catch (error) {
         console.log('error,', error);
     } finally {
