@@ -1,31 +1,15 @@
-pragma solidity ^0.6.1;
+pragma solidity ^0.5.1;
 
 contract Deployer {
-    uint public haha;
+
+    event Result(address con);
 
     constructor() public {
-        haha = 1;
-    }
-
-    function deploy() public returns (address) {
+      emit Result(0x000f971B010Db1038D07139fe3b1075B02ceade7);
       address addr;
       assembly {
-        addr := create2(0, 0, 0, 0xFFFFFFFFFFFFFFFF)
+        addr := create2(0, 0, 0, 0x20000000)
       }
-      return addr;
-    }
-
-    function echo(uint num) public returns (uint) {
-        return num;
-    }
-
-    function renderHelloWorld() public returns (uint) {
-        return 42;
+      emit Result(addr);
     }
 }
-
-// contract test {
-//     function f(uint256 a) public returns (uint256 d) {
-//         return a * 7;
-//     }
-// }
