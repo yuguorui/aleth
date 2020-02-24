@@ -8,7 +8,7 @@ macro(configure_project)
 	option(BUILD_SHARED_LIBS "Build project libraries shared" OFF)
 
 	# Features:
-	option(VMTRACE "Enable VM tracing" OFF)
+	option(VMTRACE "Enable VM tracing" ON)
 	option(PROFILING "Enable profiling (deprecated)" OFF)
 	option(FATDB "Enable fat state database" ON)
 	option(ROCKSDB "Build with RocksDB instead of LevelDB" OFF)

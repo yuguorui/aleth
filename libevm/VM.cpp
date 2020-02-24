@@ -232,6 +232,7 @@ void VM::interpretCases()
 
 		CASE(CREATE2)
 		{
+			ON_OP();
 			if (!m_schedule->haveCreate2)
 				throwBadInstruction();
 			m_bounce = &VM::caseCreate;
@@ -240,6 +241,7 @@ void VM::interpretCases()
 		
 		CASE(CREATE)
 		{
+			ON_OP();
 			if (m_ext->staticCall)
 				throwDisallowedStateChange();
 
@@ -252,6 +254,7 @@ void VM::interpretCases()
 		CASE(CALL)
 		CASE(CALLCODE)
 		{
+			ON_OP();
 			if (m_OP == Instruction::DELEGATECALL && !m_schedule->haveDelegateCall)
 				throwBadInstruction();
 			if (m_OP == Instruction::STATICCALL && !m_schedule->haveStaticCall)
