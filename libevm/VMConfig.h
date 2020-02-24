@@ -77,6 +77,8 @@ namespace eth
 //
 // set EVM_TRACE to 3, 2, 1, or 0 for lots to no tracing to cerr
 //
+#define EVM_TRACE 3
+
 #ifndef EVM_TRACE
 	#define EVM_TRACE 0
 #endif
@@ -99,7 +101,7 @@ namespace eth
 			cerr <<"=== "<< (name) <<" "<<hex<< (val) <<endl;
 	#define TRACE_OP(level, pc, op) \
 		if ((level) <= EVM_TRACE) \
-			cerr <<"*** "<< (pc) <<" "<< instructionInfo(op).name <<endl;
+			cerr <<"*** "<< (pc) <<" "<< std::hex << (int)op << " " << instructionInfo(op).name <<endl;
 			
 	#define TRACE_PRE_OPT(level, pc, op) \
 		if ((level) <= EVM_TRACE) \
@@ -403,7 +405,7 @@ namespace eth
 			&&CALLCODE,  \
 			&&RETURN,  \
 			&&DELEGATECALL,  \
-			&&INVALID,  \
+			&&CREATE2,  /* ugly fix for create2 wrong opcode &&INVALID,  \ */ \
 			&&INVALID,  \
 			&&INVALID,  \
 			&&INVALID,  \
