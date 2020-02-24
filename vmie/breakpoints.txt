@@ -1,0 +1,9 @@
+
+b libevm/VMCalls.cpp:169
+b libevm/VMCalls.cpp:135
+
+## main interpreter loop and switch
+# b libevm/VM.cpp:226
+
+b libevm/VM.cpp:235
+b libevm/VM.cpp:243
