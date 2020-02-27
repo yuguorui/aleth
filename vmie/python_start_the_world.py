@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.8
 
 import json
+import time
 
 from web3.auto import w3
 from solc import compile_standard
@@ -45,7 +46,7 @@ rawTx = dict(
         chainId=0x42,
         nonce=w3.eth.getTransactionCount(person1.address),
         gasPrice=w3.eth.gasPrice,
-        gas=300000,
+        gas=3000000,
         data=bytecode,
         )
 # print(rawTx)
@@ -56,7 +57,10 @@ assert(connected)
 
 trans_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction) 
 receipt = w3.eth.waitForTransactionReceipt(trans_hash)
-print(f'Contract address: {receipt.contractAddress}')
+print(f'Contract address: {receipt.contractAddress}, blocknumber: {w3.eth.blockNumber}')
 print("=====================\nEvents:")
 for log in receipt.logs:
     print(log['data'])
+
+
+
