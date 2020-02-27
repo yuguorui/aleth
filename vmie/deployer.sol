@@ -9,7 +9,7 @@ contract Deployer {
     constructor() public {
       address addr;
       assembly {
-        addr := create2(0, 0, 0x0, 115)
+        addr := create2(0, 0, 0x0, 114)
       }
       emit Result(addr);
     }
