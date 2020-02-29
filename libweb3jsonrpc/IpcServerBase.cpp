@@ -41,6 +41,7 @@ struct IpcReceiveChannel: public LogChannel { static const char* name() { return
 template <class S> IpcServerBase<S>::IpcServerBase(string const& _path):
 	m_path(_path)
 {
+    cout << "JSON-RPC socket path: " << _path;
 }
 
 template <class S> bool IpcServerBase<S>::StartListening()
