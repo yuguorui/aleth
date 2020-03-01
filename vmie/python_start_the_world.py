@@ -148,6 +148,9 @@ def watch_client2():
             print('[!] Found import error in client 2')
             if waitUntilSync.locked():
                 waitUntilSync.release()
+        if 'Node ID' in line:
+            Node_ID = re.search('//(.*)@', line).group(1)
+            print(f'[.] Node id: {Node_ID}')
 
 Thread(target=watch_client2).start()
 waitUntilSync.acquire()

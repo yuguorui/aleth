@@ -726,6 +726,7 @@ void BlockChainSync::collectBlocks()
 
 void BlockChainSync::onPeerNewBlock(std::shared_ptr<EthereumPeer> _peer, RLP const& _r)
 {
+	cwarn << "Receiving new blocks";
 	RecursiveGuard l(x_sync);
 	DEV_INVARIANT_CHECK;
 
