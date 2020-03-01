@@ -65,7 +65,7 @@ def start_and_deploy(lock):
         global Node_ID
         print('## 1. clean the environment')
         os.system('rm -rf .ethereum')
-        os.system('rm -rf ./aleth.log.txt')
+        # os.system('rm -rf ./aleth.log.txt')
         print('## 2. Start the client...')
         cli_args = '../build/eth/eth --config config.json --no-discovery --json-rpc-port 8545 --db-path .ethereum --listen 30303 -m on -v 9 -a 000f971b010db1038d07139fe3b1075b02ceade7 --unsafe-transactions -t 2'.split(' ')
         process = Popen(cli_args, bufsize=1, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
@@ -80,9 +80,9 @@ def start_and_deploy(lock):
             line = ansi_escape_8bit.sub('', process.stdout.readline())
             with open('./aleth.log.txt', 'a') as f:
                 f.write(line)
-            if lock.locked() and deployer.exitcode is not None:
+            if lock.locked() and q.qsize() > 0:
                 lock.release()
-                print('Event:', q.get())
+                # print('Event:', q.get())
             if 'Node ID' in line:
                 Node_ID = re.search('//(.*)@', line).group(1)
                 print(f'[.] Node id: {Node_ID}')
@@ -90,7 +90,7 @@ def start_and_deploy(lock):
                 print('[!] Detected invalid block, restart...')
                 deployer.terminate()
                 process.terminate()
-                time.sleep(3)
+                time.sleep(1)
                 break
     
 
@@ -121,32 +121,38 @@ def connect_to_client(q):
     q.put(receipt.logs[0])
 
 
-lock1 = Lock()
-t1 = Thread(target=start_and_deploy, args=(lock1,))
+waitUntilNoError = Lock()
+t1 = Thread(target=start_and_deploy, args=(waitUntilNoError,))
 t1.start()
-# print(lock1.locked())
-lock1.acquire()
+waitUntilNoError.acquire()
 
 ##################### Start another client #####################
+# input('Wait for enter...')
 print('## 5. clean the environment')
 os.system('rm -rf .ethereum2')
-os.system('rm -rf ./aleth2.log.txt')
+# os.system('rm -rf ./aleth2.log.txt')
 print('## 6. Start another client...')
 time.sleep(5)
 # cli_args = '../build/eth/eth --config config.json --no-discovery --json-rpc-port 9545 --listen 30305 --db-path .ethereum2 --allow-local-discovery -v 5 -m on -t 2'.format(Node_ID).split(' ')
 cli_args = '../build/eth/eth --config config.json --no-discovery --json-rpc-port 9545 --listen 30305 --db-path .ethereum2 --peerset required:{}@127.0.0.1:30303 -v 5 -m on -t 2'.format(Node_ID).split(' ')
-print(cli_args)
 process = Popen(cli_args, bufsize=0, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
 
-while True:
-    line = ansi_escape_8bit.sub('', process.stdout.readline())
-    with open('./aleth2.log.txt', 'a') as f:
-        f.write(line)
-    if 'Import Failure' in line:
-        print('[!] Found import error in client 2')
-        break
+waitUntilSync = Lock()
+def watch_client2():
+    waitUntilSync.acquire()
+    while True:
+        line = ansi_escape_8bit.sub('', process.stdout.readline())
+        with open('./aleth2.log.txt', 'a') as f:
+            f.write(line)
+        if 'Import Failure' in line:
+            print('[!] Found import error in client 2')
+            if waitUntilSync.locked():
+                waitUntilSync.release()
 
-print()
+Thread(target=watch_client2).start()
+waitUntilSync.acquire()
+
+
 w3_1 = Web3(HTTPProvider('http://localhost:8545'))
 w3_2 = Web3(HTTPProvider('http://localhost:9545'))
 while True:
